@@ -7,41 +7,42 @@ namespace DiceRoller
     class DiceDataStore
     {
         Random random = new Random();
+        ResponseValidator responseValidator = new ResponseValidator();
         int diceSides = 0;
         int diceNumber = 0;
         string phrase;
-        string response;
-        string responseYes = "y";
-        string responseNo = "n";
 
         public DiceDataStore()
         {
-            response = ResponseValidator.CheckIfValidString("Do you want to roll dice (Y/N)?", responseYes, responseNo);
-            while (response == responseYes)
+            phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8)");
+            string[] words = phrase.Split('d');
+            ParseDiceNumbers(words);
+            CalculateDice();
+        }
+
+        private void ParseDiceNumbers(string[] words)
+        {
+            for (int i = 0; i < words.Length; i++)
             {
-                phrase = ResponseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8)");
-                string[] words = phrase.Split('d');
-
-                for (int i = 0; i < words.Length; i++)
+                if (i == 0)
                 {
-                    if (i == 0)
-                    {
-                        diceNumber = int.Parse(words[i]);
-                    }
-                    else
-                    {
-                        diceSides = int.Parse(words[i]);
-                    }
+                    diceNumber = int.Parse(words[i]);
                 }
-
-                for (int i = 0; i < diceNumber; i++)
+                else
                 {
-                    int diceGen = random.Next(1, diceSides);
-                    Console.Write(diceGen + " ");
+                    diceSides = int.Parse(words[i]);
                 }
-                Console.WriteLine();
-                Console.Read();
             }
+        }
+
+        private void CalculateDice()
+        {
+            for (int i = 0; i < diceNumber; i++)
+            {
+                int diceGen = random.Next(1, diceSides);
+                Console.Write(diceGen + " ");
+            }
+            Console.WriteLine();
         }
     }
 }

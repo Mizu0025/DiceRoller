@@ -6,11 +6,13 @@ namespace DiceRoller
 {
     class ResponseValidator
     {
-        private static List<string> validResponses;
+        private List<string> validResponses;
+        private string response;
+        private int intResponse;
 
-        public static string CheckIfAnswerEntered(string question)
+        public string CheckIfAnswerEntered(string question)
         {
-            string response = AskQuestionAndGetResponse(question);
+            response = AskQuestionAndGetResponse(question);
 
             while (response == "")
             {
@@ -19,9 +21,9 @@ namespace DiceRoller
             return response;
         }
 
-        private static string CheckIfValidString(string question, List<string> validValues)
+        private string CheckIfValidString(string question, List<string> validValues)
         {
-            string response = AskQuestionAndGetResponse(question);
+            response = AskQuestionAndGetResponse(question);
 
             while (validValues.IndexOf(response.ToLower()) == -1)
             {
@@ -30,15 +32,14 @@ namespace DiceRoller
             return response;
         }
 
-        public static string CheckIfValidString(string question, string validResponse1, string validResponse2)
+        public string CheckIfValidString(string question, string validResponse1, string validResponse2)
         {
             return CheckIfValidString(question, validResponses = new List<string> { validResponse1.ToLower(), validResponse2.ToLower() });
         }
 
-        public static int CheckIfValidInt(string question)
+        public int CheckIfValidInt(string question)
         {
-            string response = AskQuestionAndGetResponse(question);
-            int intResponse;
+            response = AskQuestionAndGetResponse(question);
 
             while (!int.TryParse(response, out intResponse))
             {
@@ -47,7 +48,7 @@ namespace DiceRoller
             return intResponse;
         }
 
-        public static double CheckIfValidDouble(string question)
+        public double CheckIfValidDouble(string question)
         {
             string response = AskQuestionAndGetResponse(question);
             double doubleResponse;
@@ -59,7 +60,7 @@ namespace DiceRoller
             return doubleResponse;
         }
 
-        public static int CheckIfIntValueBetween(string question, int lowestValue, int highestValue)
+        public int CheckIfIntValueBetween(string question, int lowestValue, int highestValue)
         {
             lowestValue -= 1;
             highestValue += 1;
@@ -73,7 +74,7 @@ namespace DiceRoller
             return intResponse;
         }
 
-        private static string AskQuestionAndGetResponse(string question)
+        private string AskQuestionAndGetResponse(string question)
         {
             Console.WriteLine(question);
             return Console.ReadLine();
