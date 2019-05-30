@@ -27,7 +27,7 @@ namespace DiceRoller
                 {
                     Console.WriteLine("Please enter numbers above 0 for both how many times you plan to roll, and how many sides each dice has (eg; 1d8)");
                 }
-                catch(FormatException)
+                catch(FormatException e)
                 {
                     Console.WriteLine("Please enter the command in the correct format (eg; 1d8, 1*100, 1d8+10)");
                 }

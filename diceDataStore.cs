@@ -11,6 +11,7 @@ namespace DiceRoller
         int diceSides = 0;
         int diceNumber = 0;
         int diceAddition = 0;
+        int diceSubtraction = 0;
         int diceMultiplier = 0;
         List<int> generatedNumber = new List<int>();
         string phrase;
@@ -19,11 +20,24 @@ namespace DiceRoller
         {
             phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8, 1*100, 1d8+10):");
             string[] diceSplitter = phrase.Split('d', '+', '-', '*');
+            string[] sumAdditionSplitter = phrase.Split('+');
+            string[] sumSubstractionSplitter = phrase.Split('-');
+            string[] sumMultiplierSplitter = phrase.Split('*');
+            //need parser to handle phrase in any combo of parse values (eg; 1d8*100+20 as well as 1d8+20*100)
             ParseDiceNumbers(diceSplitter);
-            ParseDiceResultAddition(diceSplitter);
-            ParseDiceResultSubtraction(diceSplitter);
-            ParseDiceResultMultiplier(diceSplitter);
             CalculateDice();
+            if(sumAdditionSplitter.Length > 1)
+            {
+                ParseDiceResultAddition(sumAdditionSplitter);
+            }
+            if(sumSubstractionSplitter.Length > 1)
+            {
+                ParseDiceResultSubtraction(sumSubstractionSplitter);
+            }
+            if(sumMultiplierSplitter.Length > 1)
+            {
+                ParseDiceResultMultiplier(sumMultiplierSplitter);
+            }
         }
 
         private void ParseDiceNumbers(string[] diceSplitter)
@@ -43,17 +57,26 @@ namespace DiceRoller
 
         private void ParseDiceResultAddition(string[] diceAddition)
         {
-            //code
+            for(int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] += int.Parse(diceAddition[1]);
+            }
         }
 
         private void ParseDiceResultSubtraction(string[] diceSubtraction)
         {
-            //code
+            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] -= int.Parse(diceSubtraction[1]);
+            }
         }
 
         private void ParseDiceResultMultiplier(string[] diceMultiplier)
         {
-            //code
+            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] *= int.Parse(diceMultiplier[1]);
+            }
         }
 
         private void CalculateDice()
