@@ -10,39 +10,67 @@ namespace DiceRoller
         ResponseValidator responseValidator = new ResponseValidator();
         int diceSides = 0;
         int diceNumber = 0;
+        int diceAddition = 0;
+        int diceMultiplier = 0;
         string phrase;
 
         public DiceDataStore()
         {
-            phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8)");
-            string[] words = phrase.Split('d');
-            ParseDiceNumbers(words);
+            phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8, 1*100, 1d8+10):");
+            string[] diceSplitter = phrase.Split('d');
+            string[] diceAdditionSplitter = phrase.Split('+');
+            string[] diceMultiplierSplitter = phrase.Split('*');
+            ParseDiceNumbers(diceSplitter);
+            ParseDiceAddition(diceAdditionSplitter);
+            ParseDiceMultiplier(diceMultiplierSplitter);
             CalculateDice();
         }
 
-        private void ParseDiceNumbers(string[] words)
+        private void ParseDiceNumbers(string[] diceSplitter)
         {
-            for (int i = 0; i < words.Length; i++)
+            for (int wordCount = 0; wordCount < diceSplitter.Length; wordCount++)
             {
-                if (i == 0)
+                if (wordCount == 0)
                 {
-                    diceNumber = int.Parse(words[i]);
+                    diceNumber = int.Parse(diceSplitter[wordCount]);
                 }
                 else
                 {
-                    diceSides = int.Parse(words[i]);
+                    diceSides = int.Parse(diceSplitter[wordCount]);
                 }
             }
+        }
+
+        private void ParseDiceAddition(string[] diceAddition)
+        {
+            
+        }
+
+        private void ParseDiceMultiplier(string[] diceMultiplier)
+        {
+            //code
         }
 
         private void CalculateDice()
         {
-            for (int i = 0; i < diceNumber; i++)
+            if(diceNumber == 0)
             {
-                int diceGen = random.Next(1, diceSides);
-                Console.Write(diceGen + " ");
+                throw new ArgumentOutOfRangeException();
             }
-            Console.WriteLine();
+            else
+            {
+                for (int i = 0; i < diceNumber; i++)
+                {
+                    int diceGen = random.Next(1, diceSides);
+                    Console.Write(diceGen + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        private void Display()
+        {
+            Console.WriteLine(diceGen + " ");
         }
     }
 }
