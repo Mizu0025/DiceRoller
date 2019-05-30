@@ -12,17 +12,17 @@ namespace DiceRoller
         int diceNumber = 0;
         int diceAddition = 0;
         int diceMultiplier = 0;
+        List<int> generatedNumber = new List<int>();
         string phrase;
 
         public DiceDataStore()
         {
             phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8, 1*100, 1d8+10):");
-            string[] diceSplitter = phrase.Split('d');
-            string[] diceAdditionSplitter = phrase.Split('+');
-            string[] diceMultiplierSplitter = phrase.Split('*');
+            string[] diceSplitter = phrase.Split('d', '+', '-', '*');
             ParseDiceNumbers(diceSplitter);
-            ParseDiceAddition(diceAdditionSplitter);
-            ParseDiceMultiplier(diceMultiplierSplitter);
+            ParseDiceResultAddition(diceSplitter);
+            ParseDiceResultSubtraction(diceSplitter);
+            ParseDiceResultMultiplier(diceSplitter);
             CalculateDice();
         }
 
@@ -34,19 +34,24 @@ namespace DiceRoller
                 {
                     diceNumber = int.Parse(diceSplitter[wordCount]);
                 }
-                else
+                else if(wordCount == 1)
                 {
                     diceSides = int.Parse(diceSplitter[wordCount]);
                 }
             }
         }
 
-        private void ParseDiceAddition(string[] diceAddition)
+        private void ParseDiceResultAddition(string[] diceAddition)
         {
-            
+            //code
         }
 
-        private void ParseDiceMultiplier(string[] diceMultiplier)
+        private void ParseDiceResultSubtraction(string[] diceSubtraction)
+        {
+            //code
+        }
+
+        private void ParseDiceResultMultiplier(string[] diceMultiplier)
         {
             //code
         }
@@ -61,16 +66,18 @@ namespace DiceRoller
             {
                 for (int i = 0; i < diceNumber; i++)
                 {
-                    int diceGen = random.Next(1, diceSides);
-                    Console.Write(diceGen + " ");
+                    generatedNumber.Add(random.Next(1, diceSides+1));
                 }
-                Console.WriteLine();
             }
         }
 
-        private void Display()
+        public void Display()
         {
-            Console.WriteLine(diceGen + " ");
+            for(int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                Console.Write(generatedNumber[numCount] + " ");
+            }
+            Console.WriteLine();
         }
     }
 }

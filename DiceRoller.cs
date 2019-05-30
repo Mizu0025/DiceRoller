@@ -21,6 +21,7 @@ namespace DiceRoller
                 try
                 {
                     diceDataStore = new DiceDataStore();
+                    diceDataStore.Display();
                 }
                 catch(ArgumentOutOfRangeException)
                 {
