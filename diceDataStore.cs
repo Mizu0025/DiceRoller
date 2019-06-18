@@ -13,42 +13,121 @@ namespace DiceRoller
         int additionAmount = 0;
         int subtractionAmount = 0;
         int multiplicationAmount = 0;
-        List<int> generatedNumber = new List<int>();
-        string phrase = "100d88+1*5-2";
         int[] currentValues;
+        string phrase;
+        List<int> generatedNumber = new List<int>();
+        Dictionary<char, int> stringPhaseDict = new Dictionary<char, int>();
 
         public DiceDataStore()
         {
+            phrase = responseValidator.CheckIfAnswerEntered("Please enter a dice number:");
             char[] phraseChars = phrase.ToCharArray();
-            //need to add way to calc. each value before checkedValue and up until next checked value (eg; 10d200+20 need to add 10 as diceNum, not 0)
+            CalculatePhrasePositions(phraseChars);
 
-            for(int pos = 0; pos < phraseChars.Length; pos++)
+            if(stringPhaseDict.ContainsKey('d'))
             {
-                if (phraseChars[pos] == 'd')
-                {
-                    CalculateBeforeCurrentPos(phraseChars, pos);
-                    diceNumber = int.Parse(string.Join("", currentValues));
-                    CalculateAfterCurrentPos(phraseChars, pos);
-                    diceSides = int.Parse(string.Join("", currentValues));
-                }
-                else if(phraseChars[pos] == '+')
-                {
-                    additionAmount = int.Parse(phraseChars[pos + 1].ToString());
-                }
-                else if (phraseChars[pos] == '-')
-                {
-                    subtractionAmount = int.Parse(phraseChars[pos + 1].ToString());
-                }
-                else if (phraseChars[pos] == '*')
-                {
-                    multiplicationAmount = int.Parse(phraseChars[pos + 1].ToString());
-                }
+                stringPhaseDict.TryGetValue('d', out int currentPos);
+                int nextPos = CalculateNextPos(currentPos);
+
+                CalculateCurrentValues(phraseChars, 0, currentPos);
+                diceNumber = int.Parse(string.Join("", currentValues));
+                CalculateCurrentValues(phraseChars, currentPos, nextPos);
+                diceSides = int.Parse(string.Join("", currentValues));
+            }
+
+            if(stringPhaseDict.ContainsKey('+'))
+            {
+                stringPhaseDict.TryGetValue('+', out int currentPos);
+                int nextPos = CalculateNextPos(currentPos);
+
+                CalculateCurrentValues(phraseChars, currentPos, nextPos);
+                additionAmount = int.Parse(string.Join("", currentValues));
+            }
+
+            if (stringPhaseDict.ContainsKey('-'))
+            {
+                stringPhaseDict.TryGetValue('-', out int currentPos);
+                int nextPos = CalculateNextPos(currentPos);
+
+                CalculateCurrentValues(phraseChars, currentPos, nextPos);
+                subtractionAmount = int.Parse(string.Join("", currentValues));
+            }
+
+            if (stringPhaseDict.ContainsKey('*'))
+            {
+                stringPhaseDict.TryGetValue('*', out int currentPos);
+                int nextPos = CalculateNextPos(currentPos);
+
+                CalculateCurrentValues(phraseChars, currentPos, nextPos);
+                multiplicationAmount = int.Parse(string.Join("", currentValues));
             }
 
             CalculateDice();
             CalculateDiceResultAddition();
             CalculateDiceResultSubtraction();
             CalculateDiceResultMultiplier();
+        }
+
+        private int CalculateNextPos(int currentPos)
+        {
+            stringPhaseDict.TryGetValue('d', out int diceValue);
+            stringPhaseDict.TryGetValue('+', out int plusValue);
+            stringPhaseDict.TryGetValue('-', out int minusValue);
+            stringPhaseDict.TryGetValue('*', out int multiplierValue);
+            int[] stringPosValues = new int[] { diceValue, plusValue, minusValue, multiplierValue };
+            Array.Sort(stringPosValues);
+            int nextPos = 0;
+
+            for(int pos = 0; pos < stringPosValues.Length; pos++)
+            {
+                if(currentPos < stringPosValues[pos])
+                {
+                    nextPos = stringPosValues[pos];
+                    break;
+                }
+                else if (currentPos == stringPosValues[pos] && pos == (stringPosValues.Length-1))
+                {
+                    nextPos = phrase.Length;
+                    break;
+                }
+            }
+            return nextPos;
+        }
+
+        private void CalculateCurrentValues(char[] phraseChars, int startPos, int endPos)
+        {
+            int currentPos;
+
+            if (phraseChars[startPos] == 'd' || phraseChars[startPos] == '+' || phraseChars[startPos] == '-' || phraseChars[startPos] == '*')
+            {
+                int posRange = endPos - (startPos + 1);
+                currentValues = new int[posRange];
+                currentPos = startPos + 1;
+            }
+            else
+            {
+                int posRange = endPos - startPos;
+                currentValues = new int[posRange];
+                currentPos = startPos;
+            }
+
+            for (int beforePos = 0; beforePos < currentValues.Length; beforePos++)
+            {
+                currentValues[beforePos] = int.Parse(phraseChars[currentPos].ToString());
+                currentPos++;
+            }
+        }
+
+        private bool DictContainsCheck(char key)
+        {
+            if(stringPhaseDict.ContainsKey(key))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void CalculateDice()
@@ -68,45 +147,57 @@ namespace DiceRoller
 
         private void CalculateDiceResultAddition()
         {
-            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            if(additionAmount != 0)
             {
-                generatedNumber[numCount] += additionAmount;
+                for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+                {
+                    generatedNumber[numCount] += additionAmount;
+                }
             }
         }
 
         private void CalculateDiceResultSubtraction()
         {
-            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            if(subtractionAmount != 0)
             {
-                generatedNumber[numCount] -= subtractionAmount;
+                for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+                {
+                    generatedNumber[numCount] -= subtractionAmount;
+                }
             }
         }
 
         private void CalculateDiceResultMultiplier()
         {
-            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            if(multiplicationAmount != 0)
             {
-                generatedNumber[numCount] *= multiplicationAmount;
+                for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+                {
+                    generatedNumber[numCount] *= multiplicationAmount;
+                }
             }
         }
 
-        private void CalculateBeforeCurrentPos(char[] phraseChars, int pos)
+        private void CalculatePhrasePositions(char[] phraseChars)
         {
-            currentValues = new int[pos];
-
-            for (int beforePos = 0; beforePos < currentValues.Length; beforePos++)
+            for (int phrasePos = 0; phrasePos < phraseChars.Length; phrasePos++)
             {
-                currentValues[beforePos] = int.Parse(phraseChars[beforePos].ToString());
-            }
-        }
-
-        private void CalculateAfterCurrentPos(char[] phraseChars, int pos)
-        {
-            currentValues = new int[pos];
-
-            for (int afterPos = 0; afterPos < currentValues.Length; afterPos++)
-            {
-                currentValues[afterPos] = int.Parse(phraseChars[afterPos].ToString());
+                if (phraseChars[phrasePos] == 'd')
+                {
+                    stringPhaseDict.Add('d', phrasePos);
+                }
+                else if (phraseChars[phrasePos] == '+')
+                {
+                    stringPhaseDict.Add('+', phrasePos);
+                }
+                else if (phraseChars[phrasePos] == '-')
+                {
+                    stringPhaseDict.Add('-', phrasePos);
+                }
+                else if (phraseChars[phrasePos] == '*')
+                {
+                    stringPhaseDict.Add('*', phrasePos);
+                }
             }
         }
 
