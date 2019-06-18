@@ -15,27 +15,30 @@ namespace DiceRoller
             //if args[] != "" then skip asking for input
             //learn what is at each args[] index, so as to know where Phrase shall be found when entering input from commandline
 
-            response = responseValidator.CheckIfValidString("Do you want to roll dice (Y/N)?", responseYes, responseNo);
-            while (response == responseYes)
-            {
-                try
-                {
-                    diceDataStore = new DiceDataStore();
-                    diceDataStore.Display();
-                }
-                catch(ArgumentOutOfRangeException)
-                {
-                    Console.WriteLine("Please enter numbers above 0 for both how many times you plan to roll, and how many sides each dice has (eg; 1d8)");
-                }
-                catch(FormatException e)
-                {
-                    Console.WriteLine("Please enter the command in the correct format (eg; 1d8, 1*100, 1d8+10)");
-                }
-                catch(Exception generalError)
-                {
-                    Console.WriteLine(generalError.Message);
-                }
-            }
+            diceDataStore = new DiceDataStore();
+            diceDataStore.Display();
+
+            //response = responseValidator.CheckIfValidString("Do you want to roll dice (Y/N)?", responseYes, responseNo);
+            //while (response == responseYes)
+            //{
+            //    try
+            //    {
+            //        diceDataStore = new DiceDataStore();
+            //        diceDataStore.Display();
+            //    }
+            //    catch(ArgumentOutOfRangeException)
+            //    {
+            //        Console.WriteLine("Please enter numbers above 0 for both how many times you plan to roll, and how many sides each dice has (eg; 1d8)");
+            //    }
+            //    catch(FormatException)
+            //    {
+            //        Console.WriteLine("Please enter the command in the correct format (eg; 1d8, 1*100, 1d8+10)");
+            //    }
+            //    catch(Exception generalError)
+            //    {
+            //        Console.WriteLine(generalError.Message);
+            //    }
+            //}
         }
     }
 }

@@ -10,73 +10,45 @@ namespace DiceRoller
         ResponseValidator responseValidator = new ResponseValidator();
         int diceSides = 0;
         int diceNumber = 0;
-        int diceAddition = 0;
-        int diceSubtraction = 0;
-        int diceMultiplier = 0;
+        int additionAmount = 0;
+        int subtractionAmount = 0;
+        int multiplicationAmount = 0;
         List<int> generatedNumber = new List<int>();
-        string phrase;
+        string phrase = "100d88+1*5-2";
+        int[] currentValues;
 
         public DiceDataStore()
         {
-            phrase = responseValidator.CheckIfAnswerEntered("Enter your dice roll (eg; 1d8, 1*100, 1d8+10):");
-            string[] diceSplitter = phrase.Split('d', '+', '-', '*');
-            string[] sumAdditionSplitter = phrase.Split('+');
-            string[] sumSubstractionSplitter = phrase.Split('-');
-            string[] sumMultiplierSplitter = phrase.Split('*');
-            //need parser to handle phrase in any combo of parse values (eg; 1d8*100+20 as well as 1d8+20*100)
-            ParseDiceNumbers(diceSplitter);
+            char[] phraseChars = phrase.ToCharArray();
+            //need to add way to calc. each value before checkedValue and up until next checked value (eg; 10d200+20 need to add 10 as diceNum, not 0)
+
+            for(int pos = 0; pos < phraseChars.Length; pos++)
+            {
+                if (phraseChars[pos] == 'd')
+                {
+                    CalculateBeforeCurrentPos(phraseChars, pos);
+                    diceNumber = int.Parse(string.Join("", currentValues));
+                    CalculateAfterCurrentPos(phraseChars, pos);
+                    diceSides = int.Parse(string.Join("", currentValues));
+                }
+                else if(phraseChars[pos] == '+')
+                {
+                    additionAmount = int.Parse(phraseChars[pos + 1].ToString());
+                }
+                else if (phraseChars[pos] == '-')
+                {
+                    subtractionAmount = int.Parse(phraseChars[pos + 1].ToString());
+                }
+                else if (phraseChars[pos] == '*')
+                {
+                    multiplicationAmount = int.Parse(phraseChars[pos + 1].ToString());
+                }
+            }
+
             CalculateDice();
-            if(sumAdditionSplitter.Length > 1)
-            {
-                ParseDiceResultAddition(sumAdditionSplitter);
-            }
-            if(sumSubstractionSplitter.Length > 1)
-            {
-                ParseDiceResultSubtraction(sumSubstractionSplitter);
-            }
-            if(sumMultiplierSplitter.Length > 1)
-            {
-                ParseDiceResultMultiplier(sumMultiplierSplitter);
-            }
-        }
-
-        private void ParseDiceNumbers(string[] diceSplitter)
-        {
-            for (int wordCount = 0; wordCount < diceSplitter.Length; wordCount++)
-            {
-                if (wordCount == 0)
-                {
-                    diceNumber = int.Parse(diceSplitter[wordCount]);
-                }
-                else if(wordCount == 1)
-                {
-                    diceSides = int.Parse(diceSplitter[wordCount]);
-                }
-            }
-        }
-
-        private void ParseDiceResultAddition(string[] diceAddition)
-        {
-            for(int numCount = 0; numCount < generatedNumber.Count; numCount++)
-            {
-                generatedNumber[numCount] += int.Parse(diceAddition[1]);
-            }
-        }
-
-        private void ParseDiceResultSubtraction(string[] diceSubtraction)
-        {
-            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
-            {
-                generatedNumber[numCount] -= int.Parse(diceSubtraction[1]);
-            }
-        }
-
-        private void ParseDiceResultMultiplier(string[] diceMultiplier)
-        {
-            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
-            {
-                generatedNumber[numCount] *= int.Parse(diceMultiplier[1]);
-            }
+            CalculateDiceResultAddition();
+            CalculateDiceResultSubtraction();
+            CalculateDiceResultMultiplier();
         }
 
         private void CalculateDice()
@@ -91,6 +63,50 @@ namespace DiceRoller
                 {
                     generatedNumber.Add(random.Next(1, diceSides+1));
                 }
+            }
+        }
+
+        private void CalculateDiceResultAddition()
+        {
+            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] += additionAmount;
+            }
+        }
+
+        private void CalculateDiceResultSubtraction()
+        {
+            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] -= subtractionAmount;
+            }
+        }
+
+        private void CalculateDiceResultMultiplier()
+        {
+            for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+            {
+                generatedNumber[numCount] *= multiplicationAmount;
+            }
+        }
+
+        private void CalculateBeforeCurrentPos(char[] phraseChars, int pos)
+        {
+            currentValues = new int[pos];
+
+            for (int beforePos = 0; beforePos < currentValues.Length; beforePos++)
+            {
+                currentValues[beforePos] = int.Parse(phraseChars[beforePos].ToString());
+            }
+        }
+
+        private void CalculateAfterCurrentPos(char[] phraseChars, int pos)
+        {
+            currentValues = new int[pos];
+
+            for (int afterPos = 0; afterPos < currentValues.Length; afterPos++)
+            {
+                currentValues[afterPos] = int.Parse(phraseChars[afterPos].ToString());
             }
         }
 
