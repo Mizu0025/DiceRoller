@@ -7,13 +7,9 @@ namespace DiceRoller
         static void Main(string[] args)
         {
             DiceDataStore diceDataStore;
-            ResponseValidator responseValidator = new ResponseValidator();
-            string response;
-            string responseYes = "y";
-            string responseNo = "n";
+            bool loop = true;
 
-            response = responseValidator.CheckIfValidString("Do you want to roll dice (Y/N)?", responseYes, responseNo);
-            while (response == responseYes)
+            while (loop)
             {
                 try
                 {

@@ -6,13 +6,14 @@ namespace DiceRoller
 {
     class DiceDataStore
     {
-        Random random = new Random();
-        ResponseValidator responseValidator = new ResponseValidator();
-        int diceSides = 0;
-        int diceNumber = 0;
-        int additionAmount = 0;
-        int subtractionAmount = 0;
-        int multiplicationAmount = 0;
+        private readonly Random random = new Random();
+        private readonly ResponseValidator responseValidator = new ResponseValidator();
+        private int diceSides = 0;
+        private int diceNumber = 0;
+        private int additionAmount = 0;
+        private int subtractionAmount = 0;
+        private int multiplicationAmount = 0;
+        private int divisionAmount = 0;
         int[] currentValues;
         string phrase;
         List<int> generatedNumber = new List<int>();
@@ -62,10 +63,20 @@ namespace DiceRoller
                 multiplicationAmount = int.Parse(string.Join("", currentValues));
             }
 
+            if (stringPhaseDict.ContainsKey('/'))
+            {
+                stringPhaseDict.TryGetValue('/', out int currentPos);
+                int nextPos = CalculateNextPos(currentPos);
+
+                CalculateCurrentValues(phraseChars, currentPos, nextPos);
+                divisionAmount = int.Parse(string.Join("", currentValues));
+            }
+
             CalculateDice();
             CalculateDiceResultAddition();
             CalculateDiceResultSubtraction();
-            CalculateDiceResultMultiplier();
+            CalculateDiceResultMultiplication();
+            CalculateDiceResultDivision();
         }
 
         private int CalculateNextPos(int currentPos)
@@ -74,7 +85,8 @@ namespace DiceRoller
             stringPhaseDict.TryGetValue('+', out int plusValue);
             stringPhaseDict.TryGetValue('-', out int minusValue);
             stringPhaseDict.TryGetValue('*', out int multiplierValue);
-            int[] stringPosValues = new int[] { diceValue, plusValue, minusValue, multiplierValue };
+            stringPhaseDict.TryGetValue('/', out int divisionValue);
+            int[] stringPosValues = new int[] { diceValue, plusValue, minusValue, multiplierValue, divisionValue };
             Array.Sort(stringPosValues);
             int nextPos = 0;
 
@@ -97,8 +109,18 @@ namespace DiceRoller
         private void CalculateCurrentValues(char[] phraseChars, int startPos, int endPos)
         {
             int currentPos;
+            char[] compatibleValues = new char[] {'d', '+', '-', '*', '/'};
+            bool compatibleValue = false;
 
-            if (phraseChars[startPos] == 'd' || phraseChars[startPos] == '+' || phraseChars[startPos] == '-' || phraseChars[startPos] == '*')
+            foreach (var value in compatibleValues)
+            {
+                if (phrase[startPos] == value)
+                {
+                    compatibleValue = true;
+                }
+            }
+
+            if (compatibleValue)
             {
                 int posRange = endPos - (startPos + 1);
                 currentValues = new int[posRange];
@@ -118,36 +140,22 @@ namespace DiceRoller
             }
         }
 
-        private bool DictContainsCheck(char key)
-        {
-            if(stringPhaseDict.ContainsKey(key))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         private void CalculateDice()
         {
             if(diceNumber == 0)
             {
                 throw new ArgumentOutOfRangeException();
             }
-            else
+
+            for (int i = 0; i < diceNumber; i++)
             {
-                for (int i = 0; i < diceNumber; i++)
-                {
-                    generatedNumber.Add(random.Next(1, diceSides+1));
-                }
+                generatedNumber.Add(random.Next(1, diceSides+1));
             }
         }
 
         private void CalculateDiceResultAddition()
         {
-            if(additionAmount != 0)
+            if(additionAmount > 0)
             {
                 for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
                 {
@@ -158,7 +166,7 @@ namespace DiceRoller
 
         private void CalculateDiceResultSubtraction()
         {
-            if(subtractionAmount != 0)
+            if(subtractionAmount > 0)
             {
                 for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
                 {
@@ -167,13 +175,24 @@ namespace DiceRoller
             }
         }
 
-        private void CalculateDiceResultMultiplier()
+        private void CalculateDiceResultMultiplication()
         {
-            if(multiplicationAmount != 0)
+            if(multiplicationAmount > 0)
             {
                 for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
                 {
                     generatedNumber[numCount] *= multiplicationAmount;
+                }
+            }
+        }
+
+        private void CalculateDiceResultDivision()
+        {
+            if (divisionAmount > 0)
+            {
+                for (int numCount = 0; numCount < generatedNumber.Count; numCount++)
+                {
+                    generatedNumber[numCount] /= divisionAmount;
                 }
             }
         }
@@ -197,6 +216,10 @@ namespace DiceRoller
                 else if (phraseChars[phrasePos] == '*')
                 {
                     stringPhaseDict.Add('*', phrasePos);
+                }
+                else if (phraseChars[phrasePos] == '/')
+                {
+                    stringPhaseDict.Add('/', phrasePos);
                 }
             }
         }
